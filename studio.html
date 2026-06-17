@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>Studio — A Life Moore Lived</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F8FAF7;--warm-white:#F2F7F4;--linen:#DFF0E6;
+  --sage-light:#B8D4BE;--sage:#6A9E7A;--sage-deep:#3D6B4F;
+  --sky-light:#D6ECFA;--sky:#5BAAD6;
+  --coral-light:#FDDDD5;--coral:#E8745A;--coral-deep:#B84D35;
+  --charcoal:#243028;--mid:#4D6457;--muted:#7A9485;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Jost',sans-serif;
+}
+body{background:var(--cream);color:var(--charcoal);font-family:var(--font-sans);font-weight:300;font-size:15px;line-height:1.7;min-height:100vh}
+
+nav{background:var(--cream);border-bottom:1px solid var(--linen);padding:0 3rem;display:flex;align-items:center;justify-content:center;height:80px}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--sage-deep)}
+
+.page-header{text-align:center;padding:3rem 2rem 1rem}
+.page-header h1{font-family:var(--font-serif);font-size:clamp(28px,4vw,46px);font-weight:400;color:var(--sage-deep);margin-bottom:.5rem}
+.page-header p{font-size:13px;color:var(--muted);max-width:480px;margin:0 auto}
+
+/* TAB SWITCHER */
+.tab-bar{display:flex;justify-content:center;gap:0;margin:2rem auto;max-width:500px;border:1px solid var(--linen);border-radius:8px;overflow:hidden;background:#fff}
+.tab-btn{flex:1;padding:12px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;background:none;cursor:pointer;color:var(--muted);transition:all .2s;border-right:1px solid var(--linen)}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:var(--sage-deep);color:#fff}
+.tab-btn:hover:not(.active){background:var(--linen);color:var(--sage-deep)}
+
+.tab-content{display:none;max-width:760px;margin:0 auto;padding:0 2rem 6rem}
+.tab-content.active{display:block}
+
+/* FORM ELEMENTS */
+.form-section{background:#fff;border:1px solid var(--linen);border-radius:8px;padding:2rem;margin-bottom:1.5rem}
+.form-section-title{font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--sage-deep);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--linen)}
+.form-section-title span{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-sans);margin-left:.75rem}
+.form-row{display:grid;gap:1rem;margin-bottom:1rem}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-1{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mid)}
+input[type="text"],input[type="url"],select,textarea{
+  font-family:var(--font-sans);font-size:14px;font-weight:300;
+  color:var(--charcoal);background:var(--warm-white);
+  border:1px solid var(--linen);border-radius:6px;
+  padding:10px 14px;width:100%;transition:border-color .2s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--sage);background:#fff}
+textarea{resize:vertical;line-height:1.7}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A9485' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;appearance:none;cursor:pointer}
+.hint{font-size:11px;color:var(--muted);margin-top:3px;font-style:italic}
+
+/* TEMPLATE SELECTOR */
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+.template-card{border:2px solid var(--linen);border-radius:8px;padding:1.25rem;cursor:pointer;transition:all .2s;background:var(--warm-white);text-align:center}
+.template-card:hover{border-color:var(--sage-light);background:#fff}
+.template-card.selected{border-color:var(--sage-deep);background:var(--linen)}
+.template-icon{font-size:28px;margin-bottom:.5rem}
+.template-name{font-family:var(--font-serif);font-size:16px;color:var(--sage-deep);margin-bottom:.25rem}
+.template-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* IMAGE UPLOAD */
+.image-upload-area{border:2px dashed var(--linen);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--warm-white);position:relative}
+.image-upload-area:hover{border-color:var(--sage-light);background:#fff}
+.image-upload-area.has-file{border-color:var(--sage);background:var(--linen)}
+.image-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.image-upload-area .upload-icon{font-size:24px;margin-bottom:.4rem}
+.image-upload-area p{font-size:12px;color:var(--muted)}
+.image-upload-area strong{color:var(--sage-deep)}
+.image-preview{width:100%;border-radius:6px;margin-top:.75rem;display:none;max-height:200px;object-fit:cover}
+
+/* DYNAMIC SECTIONS */
+.dynamic-list{display:flex;flex-direction:column;gap:.75rem}
+.dynamic-row{display:flex;gap:.5rem;align-items:flex-start}
+.dynamic-row textarea,.dynamic-row input{flex:1}
+.row-label{font-family:var(--font-serif);font-size:18px;color:var(--coral);min-width:28px;padding-top:8px;text-align:center;flex-shrink:0}
+.remove-btn{background:none;border:1px solid var(--linen);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;transition:all .2s}
+.remove-btn:hover{background:var(--coral-light);border-color:var(--coral);color:var(--coral-deep)}
+.add-btn{background:none;border:1px dashed var(--sage-light);color:var(--sage);font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:6px;cursor:pointer;width:100%;margin-top:.5rem;transition:all .2s}
+.add-btn:hover{background:var(--linen);border-color:var(--sage)}
+
+/* CHECKBOX PILLS */
+.checkbox-group{display:flex;flex-wrap:wrap;gap:.5rem}
+.checkbox-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mid);cursor:pointer;padding:6px 12px;border:1px solid var(--linen);border-radius:20px;transition:all .2s;user-select:none}
+.checkbox-label:hover{border-color:var(--sage-light);background:var(--warm-white)}
+.checkbox-label.checked{background:var(--linen);border-color:var(--sage);color:var(--sage-deep)}
+
+/* OUTPUT */
+.output-section{display:none;background:var(--warm-white);border:1px solid var(--linen);border-radius:8px;padding:2rem;margin-top:1.5rem;text-align:center}
+.output-section h3{font-family:var(--font-serif);font-size:26px;color:var(--sage-deep);margin-bottom:.5rem}
+.output-section p{font-size:13px;color:var(--mid);margin-bottom:1.5rem}
+.output-content{background:#fff;border:1px solid var(--linen);border-radius:6px;padding:1.25rem;text-align:left;font-size:12px;color:var(--mid);line-height:1.8;white-space:pre-wrap;max-height:300px;overflow-y:auto;margin-bottom:1rem}
+.copy-btn{background:var(--sage-deep);color:#fff;border:none;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:10px 24px;border-radius:20px;cursor:pointer;transition:background .2s;margin:0 .5rem}
+.copy-btn:hover{background:var(--sage)}
+
+/* SUBMIT */
+.submit-btn{width:100%;padding:16px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;background:var(--sage-deep);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:background .2s;margin-top:.5rem}
+.submit-btn:hover{background:var(--sage)}
+
+/* INSTAGRAM SPECIFIC */
+.embed-preview{background:var(--warm-white);border:1px solid var(--linen);border-radius:8px;padding:1.5rem;margin-top:.75rem;display:none}
+.embed-preview p{font-size:13px;color:var(--muted);text-align:center}
+
+.password-gate{position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
+.password-gate.hidden{display:none}
+.password-box{background:#fff;border:1px solid var(--linen);border-radius:12px;padding:3rem;text-align:center;max-width:380px;width:90%}
+.password-box h2{font-family:var(--font-serif);font-size:32px;font-weight:400;font-style:italic;color:var(--sage-deep);margin-bottom:.5rem}
+.password-box p{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.password-input{width:100%;padding:12px 16px;font-family:var(--font-sans);font-size:16px;border:1px solid var(--linen);border-radius:6px;outline:none;text-align:center;letter-spacing:.2em;background:var(--warm-white)}
+.password-input:focus{border-color:var(--sage)}
+.password-btn{width:100%;margin-top:1rem;padding:12px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;background:var(--sage-deep);color:#fff;border:none;border-radius:6px;cursor:pointer;transition:background .2s}
+.password-btn:hover{background:var(--sage)}
+.password-error{font-size:12px;color:var(--coral);margin-top:.75rem;display:none}
+.site-content{display:none}
+.site-content.unlocked{display:block}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div class="password-gate" id="password-gate">
+  <div class="password-box">
+    <h2>A Life <em>Moore</em> Lived</h2>
+    <p>Studio — Private Access</p>
+    <input type="password" class="password-input" id="password-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()"/>
+    <button class="password-btn" onclick="checkPassword()">Enter Studio</button>
+    <p class="password-error" id="password-error">Incorrect password. Try again.</p>
+  </div>
+</div>
+
+<!-- SITE CONTENT -->
+<div class="site-content" id="site-content">
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html">Blog</a></li>
+    <li><a href="index.html">Recipes</a></li>
+    <li><a href="index.html">Instagram</a></li>
+    <li><a href="index.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <h1>Add New Content</h1>
+  <p>Fill in the form, hit generate, and paste the output to Claude. Your post will be built, proofed, and ready to deploy.</p>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('blog', this)">✍️ Blog Post</button>
+  <button class="tab-btn" onclick="switchTab('recipe', this)">🍴 Recipe</button>
+  <button class="tab-btn" onclick="switchTab('instagram', this)">📱 Instagram</button>
+</div>
+
+<!-- ======================== BLOG FORM ======================== -->
+<div class="tab-content active" id="tab-blog">
+
+  <!-- TEMPLATE SELECTOR -->
+  <div class="form-section">
+    <div class="form-section-title">Choose Your Template <span>Required</span></div>
+    <div class="template-grid">
+      <div class="template-card selected" id="tpl-guide" onclick="selectTemplate('guide')">
+        <div class="template-icon">🗺️</div>
+        <div class="template-name">Travel Guide</div>
+        <div class="template-desc">Structured sections — Getting There, Where to Stay, Eat, Activities, Tips. Perfect for destination posts.</div>
+      </div>
+      <div class="template-card" id="tpl-story" onclick="selectTemplate('story')">
+        <div class="template-icon">✨</div>
+        <div class="template-name">The Story</div>
+        <div class="template-desc">Narrative and personal. Big hero, pull quotes, photos woven through. For posts that are more feeling than fact.</div>
+      </div>
+      <div class="template-card" id="tpl-list" onclick="selectTemplate('list')">
+        <div class="template-icon">📋</div>
+        <div class="template-name">The List</div>
+        <div class="template-desc">Punchy and scannable. "10 things we learned in Colombia." Great for quick reads and shareable content.</div>
+      </div>
+    </div>
+    <input type="hidden" id="b-template" value="guide"/>
+  </div>
+
+  <!-- BASICS -->
+  <div class="form-section">
+    <div class="form-section-title">The Basics</div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Post title</label>
+        <input type="text" id="b-title" placeholder="e.g. Theth National Park: A Hidden Gem"/>
+      </div>
+    </div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Subtitle / intro line</label>
+        <input type="text" id="b-subtitle" placeholder="e.g. Untouched natural beauty, endless trails, and just enough sleepy charm"/>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="b-cat">
+          <option value="">Select</option>
+          <option>Travel</option>
+          <option>Running</option>
+          <option>Food</option>
+          <option>Family Life</option>
+          <option>Fitness</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="b-tags" placeholder="e.g. Albania, Hiking, Family Travel"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGES -->
+  <div class="form-section">
+    <div class="form-section-title">Images</div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Hero image <span style="color:var(--coral)">*</span></label>
+        <div class="image-upload-area" id="b-hero-drop">
+          <input type="file" accept="image/*" onchange="handleImage(event,'b-hero-preview','b-hero-drop','b-hero-data')"/>
+          <div class="upload-icon">🖼️</div>
+          <p><strong>Click to upload</strong><br/>Full width banner image at top of post</p>
+          <img class="image-preview" id="b-hero-preview" alt="Hero preview"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Card thumbnail <span style="color:var(--coral)">*</span></label>
+        <div class="image-upload-area" id="b-thumb-drop">
+          <input type="file" accept="image/*" onchange="handleImage(event,'b-thumb-preview','b-thumb-drop','b-thumb-data')"/>
+          <div class="upload-icon">📷</div>
+          <p><strong>Click to upload</strong><br/>Image shown on blog listing page</p>
+          <img class="image-preview" id="b-thumb-preview" alt="Thumbnail preview"/>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:1rem">
+      <label>Additional images within post</label>
+      <span class="hint">Upload any extra photos you want included in the body of the post</span>
+      <div class="image-upload-area" id="b-extra-drop" style="margin-top:.5rem">
+        <input type="file" accept="image/*" multiple onchange="handleMultipleImages(event)"/>
+        <div class="upload-icon">➕</div>
+        <p><strong>Click to upload multiple photos</strong><br/>These will be placed throughout the post</p>
+      </div>
+      <div id="b-extra-previews" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="form-section">
+    <div class="form-section-title">Your Content <span>Write naturally — Claude will proofread</span></div>
+
+    <div class="form-row cols-1" id="guide-sections">
+      <div class="form-group">
+        <label>Opening paragraph</label>
+        <textarea id="b-intro" rows="4" placeholder="Your first impression, the wow moment, the hook. Write it like you'd tell a friend."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Section 1 — Getting There / The Route</label>
+        <textarea id="b-s1" rows="4" placeholder="How did you get there? Any tips on the journey?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Section 2 — Where to Stay</label>
+        <textarea id="b-s2" rows="4" placeholder="Where did you stay? What did you love about it?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Section 3 — Where to Eat</label>
+        <textarea id="b-s3" rows="3" placeholder="Best restaurants, local spots, what to order"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Section 4 — Activities / Things to Do</label>
+        <textarea id="b-s4" rows="4" placeholder="Hikes, experiences, things the kids loved"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tips & Things to Know</label>
+        <textarea id="b-tips" rows="3" placeholder="What would you tell a friend before they go? Packing tips, regrets, things not to miss"></textarea>
+      </div>
+    </div>
+
+    <div class="form-row cols-1" id="story-sections" style="display:none">
+      <div class="form-group">
+        <label>Your story</label>
+        <textarea id="b-story" rows="12" placeholder="Write it like you're telling a friend over dinner. The moment, the feeling, what happened. Claude will shape it into a beautiful post."></textarea>
+        <span class="hint">Don't worry about structure — just write. The more real the better.</span>
+      </div>
+    </div>
+
+    <div class="form-row cols-1" id="list-sections" style="display:none">
+      <div class="form-group">
+        <label>List title</label>
+        <input type="text" id="b-list-title" placeholder="e.g. 10 Things We Learned Traveling Colombia with Kids"/>
+      </div>
+      <div class="form-group">
+        <label>Opening line</label>
+        <input type="text" id="b-list-intro" placeholder="One punchy sentence to set the scene"/>
+      </div>
+      <div class="form-group">
+        <label>Your list items</label>
+        <div class="dynamic-list" id="list-items">
+          <div class="dynamic-row">
+            <span class="row-label">1</span>
+            <input type="text" placeholder="e.g. Kids are more resilient than you think"/>
+            <button class="remove-btn" onclick="removeRow(this)">×</button>
+          </div>
+          <div class="dynamic-row">
+            <span class="row-label">2</span>
+            <input type="text" placeholder="e.g. Always stock up before entering the park"/>
+            <button class="remove-btn" onclick="removeRow(this)">×</button>
+          </div>
+          <div class="dynamic-row">
+            <span class="row-label">3</span>
+            <input type="text" placeholder="Add your next point"/>
+            <button class="remove-btn" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button class="add-btn" onclick="addListItem()">+ Add item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PULL QUOTES -->
+  <div class="form-section">
+    <div class="form-section-title">Pull Quotes <span>Optional</span></div>
+    <div class="dynamic-list" id="b-quotes">
+      <div class="dynamic-row">
+        <input type="text" placeholder='e.g. "Why have a tantrum in your living room when you can have it in front of the Colosseum?"'/>
+        <button class="remove-btn" onclick="removeRow(this)">×</button>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addQuote()">+ Add pull quote</button>
+    <span class="hint" style="margin-top:.5rem;display:block">These appear as styled callout quotes throughout the post</span>
+  </div>
+
+  <!-- LINKS -->
+  <div class="form-section">
+    <div class="form-section-title">Links <span>Optional</span></div>
+    <div class="dynamic-list" id="b-links">
+      <div class="dynamic-row">
+        <input type="text" placeholder="Label e.g. Gurra Hotel" style="flex:0.4"/>
+        <input type="url" placeholder="URL e.g. https://booking.com/..."/>
+        <button class="remove-btn" onclick="removeRow(this)">×</button>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addLink()">+ Add link</button>
+  </div>
+
+  <button class="submit-btn" onclick="generateBlog()">Generate blog post →</button>
+  <div class="output-section" id="b-output">
+    <h3>Your blog post is ready! 🎉</h3>
+    <p>Copy the text below and paste it into a new message to Claude. Your post will be built, proofed, and ready to deploy.</p>
+    <div class="output-content" id="b-output-content"></div>
+    <button class="copy-btn" onclick="copyOutput('b-output-content')">Copy to clipboard</button>
+  </div>
+</div>
+
+<!-- ======================== RECIPE FORM ======================== -->
+<div class="tab-content" id="tab-recipe">
+  <div class="form-section">
+    <div class="form-section-title">The Basics</div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Recipe name</label>
+        <input type="text" id="r-name" placeholder="e.g. Braised Leeks with Thyme"/>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="r-cat">
+          <option value="">Select</option>
+          <option>Breakfast</option>
+          <option>Bowls</option>
+          <option>Party Food</option>
+          <option>Runner Fuel</option>
+          <option>Travel-Inspired</option>
+          <option>Weeknight Dinners</option>
+          <option>Snacks</option>
+          <option>Dessert</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Serves</label>
+        <input type="text" id="r-serves" placeholder="e.g. 4–6"/>
+      </div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group">
+        <label>Prep time</label>
+        <input type="text" id="r-prep" placeholder="e.g. 15 min"/>
+      </div>
+      <div class="form-group">
+        <label>Cook time</label>
+        <input type="text" id="r-cook" placeholder="e.g. 25 min"/>
+      </div>
+      <div class="form-group">
+        <label>Total time</label>
+        <input type="text" id="r-total" placeholder="e.g. 40 min"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Dietary tags</label>
+      <div class="checkbox-group">
+        <label class="checkbox-label" onclick="toggleCheck(this)"><input type="checkbox"/> Gluten Free</label>
+        <label class="checkbox-label" onclick="toggleCheck(this)"><input type="checkbox"/> Vegetarian</label>
+        <label class="checkbox-label" onclick="toggleCheck(this)"><input type="checkbox"/> Dairy Free</label>
+        <label class="checkbox-label" onclick="toggleCheck(this)"><input type="checkbox"/> GF Option</label>
+        <label class="checkbox-label" onclick="toggleCheck(this)"><input type="checkbox"/> Vegan</label>
+      </div>
+    </div>
+    <div class="form-row cols-1" style="margin-top:1rem">
+      <div class="form-group">
+        <label>One-line description</label>
+        <input type="text" id="r-desc" placeholder="e.g. The dip people will ask you about all night"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Images</div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Recipe photo</label>
+        <div class="image-upload-area" id="r-photo-drop">
+          <input type="file" accept="image/*" onchange="handleImage(event,'r-photo-preview','r-photo-drop','r-photo-data')"/>
+          <div class="upload-icon">📷</div>
+          <p><strong>Click to upload</strong><br/>Main recipe photo</p>
+          <img class="image-preview" id="r-photo-preview" alt="Recipe photo"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Card thumbnail</label>
+        <div class="image-upload-area" id="r-thumb-drop">
+          <input type="file" accept="image/*" onchange="handleImage(event,'r-thumb-preview','r-thumb-drop','r-thumb-data')"/>
+          <div class="upload-icon">🖼️</div>
+          <p><strong>Click to upload</strong><br/>Shown on recipes listing page</p>
+          <img class="image-preview" id="r-thumb-preview" alt="Card thumbnail"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Ingredients <span>One per line</span></div>
+    <div class="dynamic-list" id="r-ingredients">
+      <div class="dynamic-row"><input type="text" placeholder="e.g. 1/2 cup feta cheese"/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+      <div class="dynamic-row"><input type="text" placeholder="e.g. 1 red pepper"/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+      <div class="dynamic-row"><input type="text" placeholder="e.g. 3 tbsp olive oil"/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+    </div>
+    <button class="add-btn" onclick="addIngredient()">+ Add ingredient</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Steps <span>In order</span></div>
+    <div class="dynamic-list" id="r-steps">
+      <div class="dynamic-row"><span class="row-label">1</span><input type="text" placeholder="First step..."/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+      <div class="dynamic-row"><span class="row-label">2</span><input type="text" placeholder="Second step..."/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+      <div class="dynamic-row"><span class="row-label">3</span><input type="text" placeholder="Third step..."/><button class="remove-btn" onclick="removeRow(this)">×</button></div>
+    </div>
+    <button class="add-btn" onclick="addStep()">+ Add step</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Notes & Tips <span>Optional</span></div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Joanna's tips</label>
+        <textarea id="r-tips" rows="3" placeholder="Any tricks, variations, or things that make this recipe uniquely yours"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Serve with</label>
+        <input type="text" id="r-serve" placeholder="e.g. Crusty white bread, pita, raw vegetables"/>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="generateRecipe()">Generate recipe →</button>
+  <div class="output-section" id="r-output">
+    <h3>Your recipe is ready! 🎉</h3>
+    <p>Copy the text below and paste it into a new message to Claude.</p>
+    <div class="output-content" id="r-output-content"></div>
+    <button class="copy-btn" onclick="copyOutput('r-output-content')">Copy to clipboard</button>
+  </div>
+</div>
+
+<!-- ======================== INSTAGRAM FORM ======================== -->
+<div class="tab-content" id="tab-instagram">
+  <div class="form-section">
+    <div class="form-section-title">Post Details</div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="i-title" placeholder="e.g. Golden Hour in Montenegro"/>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="i-cat">
+          <option value="">Select</option>
+          <option>Travel</option>
+          <option>Running</option>
+          <option>Food</option>
+          <option>Day in the Life</option>
+          <option>Family</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Post type</label>
+        <select id="i-type">
+          <option value="reel">Reel</option>
+          <option value="post">Photo Post</option>
+          <option value="story">Story Highlight</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Instagram post URL</label>
+        <input type="url" id="i-url" placeholder="https://www.instagram.com/p/..." oninput="previewEmbed()"/>
+        <span class="hint">Paste the full URL of your Instagram post or reel</span>
+        <div class="embed-preview" id="i-embed-preview">
+          <p>📱 Instagram embed will appear here on the live page</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Short description</label>
+        <textarea id="i-desc" rows="3" placeholder="A sentence or two about this post — what it captures, why you shared it"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Card Thumbnail <span>Required</span></div>
+    <div class="form-group">
+      <label>Thumbnail image</label>
+      <div class="image-upload-area" id="i-thumb-drop">
+        <input type="file" accept="image/*" onchange="handleImage(event,'i-thumb-preview','i-thumb-drop','i-thumb-data')"/>
+        <div class="upload-icon">📷</div>
+        <p><strong>Click to upload</strong><br/>Image shown on the Instagram page before clicking in</p>
+        <img class="image-preview" id="i-thumb-preview" alt="Thumbnail"/>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="generateInstagram()">Generate Instagram post →</button>
+  <div class="output-section" id="i-output">
+    <h3>Your Instagram post is ready! 🎉</h3>
+    <p>Copy the text below and paste it into a new message to Claude.</p>
+    <div class="output-content" id="i-output-content"></div>
+    <button class="copy-btn" onclick="copyOutput('i-output-content')">Copy to clipboard</button>
+  </div>
+</div>
+
+<script>
+// TAB SWITCHING
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// TEMPLATE SELECTION
+function selectTemplate(tpl) {
+  document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('tpl-' + tpl).classList.add('selected');
+  document.getElementById('b-template').value = tpl;
+  document.getElementById('guide-sections').style.display = tpl === 'guide' ? 'flex' : 'none';
+  document.getElementById('story-sections').style.display = tpl === 'story' ? 'flex' : 'none';
+  document.getElementById('list-sections').style.display = tpl === 'list' ? 'flex' : 'none';
+  document.getElementById('guide-sections').style.flexDirection = 'column';
+  document.getElementById('guide-sections').style.gap = '1rem';
+  document.getElementById('story-sections').style.flexDirection = 'column';
+  document.getElementById('list-sections').style.flexDirection = 'column';
+  document.getElementById('list-sections').style.gap = '1rem';
+}
+
+// IMAGE HANDLING
+const imageData = {};
+function handleImage(e, previewId, dropId, dataKey) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const preview = document.getElementById(previewId);
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    document.getElementById(dropId).classList.add('has-file');
+    imageData[dataKey] = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+const extraImages = [];
+function handleMultipleImages(e) {
+  const files = Array.from(e.target.files);
+  const container = document.getElementById('b-extra-previews');
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      extraImages.push(ev.target.result);
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.style.cssText = 'width:80px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--linen)';
+      container.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// DYNAMIC ROWS
+function removeRow(btn) {
+  btn.parentElement.remove();
+  renumberSteps();
+  renumberList();
+}
+
+function renumberSteps() {
+  document.querySelectorAll('#r-steps .row-label').forEach((el, i) => el.textContent = i + 1);
+}
+
+function renumberList() {
+  document.querySelectorAll('#list-items .row-label').forEach((el, i) => el.textContent = i + 1);
+}
+
+function addIngredient() {
+  const list = document.getElementById('r-ingredients');
+  const row = document.createElement('div');
+  row.className = 'dynamic-row';
+  row.innerHTML = '<input type="text" placeholder="Next ingredient..."/><button class="remove-btn" onclick="removeRow(this)">×</button>';
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function addStep() {
+  const list = document.getElementById('r-steps');
+  const num = list.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'dynamic-row';
+  row.innerHTML = `<span class="row-label">${num}</span><input type="text" placeholder="Next step..."/><button class="remove-btn" onclick="removeRow(this)">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function addQuote() {
+  const list = document.getElementById('b-quotes');
+  const row = document.createElement('div');
+  row.className = 'dynamic-row';
+  row.innerHTML = '<input type="text" placeholder="Add a pull quote..."/><button class="remove-btn" onclick="removeRow(this)">×</button>';
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function addLink() {
+  const list = document.getElementById('b-links');
+  const row = document.createElement('div');
+  row.className = 'dynamic-row';
+  row.innerHTML = '<input type="text" placeholder="Label" style="flex:0.4"/><input type="url" placeholder="URL"/><button class="remove-btn" onclick="removeRow(this)">×</button>';
+  list.appendChild(row);
+}
+
+function addListItem() {
+  const list = document.getElementById('list-items');
+  const num = list.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'dynamic-row';
+  row.innerHTML = `<span class="row-label">${num}</span><input type="text" placeholder="Next item..."/><button class="remove-btn" onclick="removeRow(this)">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function toggleCheck(label) {
+  setTimeout(() => {
+    label.classList.toggle('checked', label.querySelector('input').checked);
+  }, 0);
+}
+
+function previewEmbed() {
+  const url = document.getElementById('i-url').value.trim();
+  const preview = document.getElementById('i-embed-preview');
+  preview.style.display = url ? 'block' : 'none';
+}
+
+// GENERATE BLOG
+function generateBlog() {
+  const title = document.getElementById('b-title').value.trim();
+  if (!title) { alert('Please add a post title!'); return; }
+  const template = document.getElementById('b-template').value;
+  const subtitle = document.getElementById('b-subtitle').value.trim();
+  const cat = document.getElementById('b-cat').value;
+  const tags = document.getElementById('b-tags').value.trim();
+  const hasHero = !!imageData['b-hero-data'];
+  const hasThumb = !!imageData['b-thumb-data'];
+
+  let content = '';
+  if (template === 'guide') {
+    content = `OPENING:\n${document.getElementById('b-intro').value.trim()}\n\nGETTING THERE:\n${document.getElementById('b-s1').value.trim()}\n\nWHERE TO STAY:\n${document.getElementById('b-s2').value.trim()}\n\nWHERE TO EAT:\n${document.getElementById('b-s3').value.trim()}\n\nACTIVITIES:\n${document.getElementById('b-s4').value.trim()}\n\nTIPS:\n${document.getElementById('b-tips').value.trim()}`;
+  } else if (template === 'story') {
+    content = `STORY:\n${document.getElementById('b-story').value.trim()}`;
+  } else {
+    const items = [...document.querySelectorAll('#list-items input')].map((i,idx) => `${idx+1}. ${i.value.trim()}`).filter(i => i.length > 3).join('\n');
+    content = `LIST TITLE: ${document.getElementById('b-list-title').value.trim()}\nINTRO: ${document.getElementById('b-list-intro').value.trim()}\n\nITEMS:\n${items}`;
+  }
+
+  const quotes = [...document.querySelectorAll('#b-quotes input')].map(i => i.value.trim()).filter(Boolean);
+  const links = [...document.querySelectorAll('#b-links .dynamic-row')].map(row => {
+    const inputs = row.querySelectorAll('input');
+    return inputs[0]?.value.trim() && inputs[1]?.value.trim() ? `${inputs[0].value.trim()} → ${inputs[1].value.trim()}` : '';
+  }).filter(Boolean);
+
+  const output = `NEW BLOG POST FOR A LIFE MOORE LIVED
+${'─'.repeat(45)}
+TEMPLATE: ${template.toUpperCase()}
+TITLE: ${title}
+SUBTITLE: ${subtitle}
+CATEGORY: ${cat}
+TAGS: ${tags}
+HERO IMAGE: ${hasHero ? 'Uploaded ✓' : 'Not uploaded — use placeholder'}
+CARD THUMBNAIL: ${hasThumb ? 'Uploaded ✓' : 'Not uploaded — use placeholder'}
+EXTRA IMAGES: ${extraImages.length > 0 ? extraImages.length + ' uploaded ✓' : 'None'}
+
+CONTENT:
+${content}
+${quotes.length ? '\nPULL QUOTES:\n' + quotes.map(q => `"${q}"`).join('\n') : ''}
+${links.length ? '\nLINKS:\n' + links.join('\n') : ''}
+
+Please: 1) correct all spelling/grammar errors, 2) build the formatted blog post HTML file matching the site style, 3) update index.html to add the card to the blog grid with the card thumbnail image.`;
+
+  document.getElementById('b-output-content').textContent = output;
+  document.getElementById('b-output').style.display = 'block';
+  document.getElementById('b-output').scrollIntoView({ behavior: 'smooth' });
+  window._blogOutput = output;
+}
+
+// GENERATE RECIPE
+function generateRecipe() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { alert('Please add a recipe name!'); return; }
+  const cat = document.getElementById('r-cat').value;
+  const serves = document.getElementById('r-serves').value.trim();
+  const prep = document.getElementById('r-prep').value.trim();
+  const cook = document.getElementById('r-cook').value.trim();
+  const total = document.getElementById('r-total').value.trim();
+  const desc = document.getElementById('r-desc').value.trim();
+  const tips = document.getElementById('r-tips').value.trim();
+  const serve = document.getElementById('r-serve').value.trim();
+  const tags = [...document.querySelectorAll('#tab-recipe .checkbox-label')].filter(l => l.querySelector('input').checked).map(l => l.textContent.trim());
+  const ingredients = [...document.querySelectorAll('#r-ingredients input')].map(i => i.value.trim()).filter(Boolean);
+  const steps = [...document.querySelectorAll('#r-steps input')].map(i => i.value.trim()).filter(Boolean);
+  const hasPhoto = !!imageData['r-photo-data'];
+  const hasThumb = !!imageData['r-thumb-data'];
+
+  const output = `NEW RECIPE FOR A LIFE MOORE LIVED
+${'─'.repeat(45)}
+RECIPE: ${name}
+CATEGORY: ${cat}
+SERVES: ${serves} | PREP: ${prep} | COOK: ${cook} | TOTAL: ${total}
+DIETARY TAGS: ${tags.join(', ') || 'None'}
+DESCRIPTION: ${desc}
+RECIPE PHOTO: ${hasPhoto ? 'Uploaded ✓' : 'Placeholder for now'}
+CARD THUMBNAIL: ${hasThumb ? 'Uploaded ✓' : 'Placeholder for now'}
+
+INGREDIENTS:
+${ingredients.map(i => '• ' + i).join('\n')}
+
+STEPS:
+${steps.map((s, i) => `${i+1}. ${s}`).join('\n')}
+
+${tips ? 'TIPS: ' + tips : ''}
+${serve ? 'SERVE WITH: ' + serve : ''}
+
+Please: 1) correct all errors, 2) add this recipe to the Recipes section of index.html with the correct card and interactive scaling modal.`;
+
+  document.getElementById('r-output-content').textContent = output;
+  document.getElementById('r-output').style.display = 'block';
+  document.getElementById('r-output').scrollIntoView({ behavior: 'smooth' });
+}
+
+// GENERATE INSTAGRAM
+function generateInstagram() {
+  const title = document.getElementById('i-title').value.trim();
+  if (!title) { alert('Please add a title!'); return; }
+  const cat = document.getElementById('i-cat').value;
+  const type = document.getElementById('i-type').value;
+  const url = document.getElementById('i-url').value.trim();
+  const desc = document.getElementById('i-desc').value.trim();
+  const hasThumb = !!imageData['i-thumb-data'];
+
+  const output = `NEW INSTAGRAM POST FOR A LIFE MOORE LIVED
+${'─'.repeat(45)}
+TITLE: ${title}
+CATEGORY: ${cat}
+TYPE: ${type}
+INSTAGRAM URL: ${url}
+DESCRIPTION: ${desc}
+CARD THUMBNAIL: ${hasThumb ? 'Uploaded ✓' : 'Placeholder for now'}
+
+Please: 1) correct all errors, 2) add this post to the Instagram section of index.html with the card thumbnail, and create a standalone post page with the embedded Instagram content.`;
+
+  document.getElementById('i-output-content').textContent = output;
+  document.getElementById('i-output').style.display = 'block';
+  document.getElementById('i-output').scrollIntoView({ behavior: 'smooth' });
+}
+
+// COPY OUTPUT
+function copyOutput(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns.forEach(b => { if (b.onclick?.toString().includes(id)) { b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy to clipboard', 2000); }});
+  });
+}
+</script>
+</div>
+<!-- END SITE CONTENT -->
+
+<script>
+
+function checkPassword() {
+  const input = document.getElementById('password-input').value;
+  if (input === '09131983') {
+    document.getElementById('password-gate').classList.add('hidden');
+    document.getElementById('site-content').classList.add('unlocked');
+    sessionStorage.setItem('studio_auth', 'true');
+  } else {
+    document.getElementById('password-error').style.display = 'block';
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+  }
+}
+
+// Check if already authenticated this session
+window.addEventListener('load', function() {
+  if (sessionStorage.getItem('studio_auth') === 'true') {
+    document.getElementById('password-gate').classList.add('hidden');
+    document.getElementById('site-content').classList.add('unlocked');
+  }
+});
+
+</script>
+</body>
+</html>
