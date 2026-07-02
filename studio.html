@@ -356,12 +356,39 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <button class="add-btn" onclick="addLink()">+ Add link</button>
   </div>
 
-  <button class="submit-btn" onclick="generateBlog()">Generate blog post →</button>
+  <div class="form-section">
+    <div class="form-section-title">📧 Substack Newsletter <span>optional but recommended</span></div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>Recipe to include in email</label>
+        <textarea id="b-recipe" rows="8" placeholder="Paste your full recipe here — ingredients and steps. This goes directly into the Substack email body so subscribers get the full recipe without clicking away."></textarea>
+        <p class="hint">Leave blank if no recipe this week</p>
+      </div>
+    </div>
+    <div class="form-row cols-1">
+      <div class="form-group">
+        <label>P.S. note</label>
+        <textarea id="b-ps" rows="3" placeholder="A personal note, a funny moment, a tip — the P.S. is always the most read line in any email!"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="generateBlog()">Generate blog post + Substack →</button>
   <div class="output-section" id="b-output">
-    <h3>Your blog post is ready! 🎉</h3>
-    <p>Copy the text below and paste it into a new message to Claude. Your post will be built, proofed, and ready to deploy.</p>
-    <div class="output-content" id="b-output-content"></div>
-    <button class="copy-btn" onclick="copyOutput('b-output-content')">Copy to clipboard</button>
+    <div style="display:grid;gap:1.5rem;grid-template-columns:1fr 1fr;margin-bottom:1rem">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:20px;color:var(--sage-deep);margin-bottom:.5rem">📄 For Claude → Blog post</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Copy this and paste into a new Claude chat to build the site post.</p>
+        <div class="output-content" id="b-output-content"></div>
+        <button class="copy-btn" onclick="copyOutput('b-output-content')">Copy blog output</button>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:20px;color:var(--sage-deep);margin-bottom:.5rem">📧 For Substack → Newsletter</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Copy this and paste directly into a new Substack post.</p>
+        <div class="output-content" id="b-substack-content"></div>
+        <button class="copy-btn" onclick="copyOutput('b-substack-content')">Copy Substack output</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -705,15 +732,31 @@ function generateBlog() {
   const tags = document.getElementById('b-tags').value.trim();
   const hasHero = !!imageData['b-hero-data'];
   const hasThumb = !!imageData['b-thumb-data'];
+  const recipe = document.getElementById('b-recipe').value.trim();
+  const ps = document.getElementById('b-ps').value.trim();
 
   let content = '';
+  let substackBody = '';
+
   if (template === 'guide') {
-    content = `OPENING:\n${document.getElementById('b-intro').value.trim()}\n\nGETTING THERE:\n${document.getElementById('b-s1').value.trim()}\n\nWHERE TO STAY:\n${document.getElementById('b-s2').value.trim()}\n\nWHERE TO EAT:\n${document.getElementById('b-s3').value.trim()}\n\nACTIVITIES:\n${document.getElementById('b-s4').value.trim()}\n\nTIPS:\n${document.getElementById('b-tips').value.trim()}`;
+    const intro = document.getElementById('b-intro').value.trim();
+    const s1 = document.getElementById('b-s1').value.trim();
+    const s2 = document.getElementById('b-s2').value.trim();
+    const s3 = document.getElementById('b-s3').value.trim();
+    const s4 = document.getElementById('b-s4').value.trim();
+    const tips = document.getElementById('b-tips').value.trim();
+    content = `OPENING:\n${intro}\n\nGETTING THERE:\n${s1}\n\nWHERE TO STAY:\n${s2}\n\nWHERE TO EAT:\n${s3}\n\nACTIVITIES:\n${s4}\n\nTIPS:\n${tips}`;
+    substackBody = `${intro}\n\n${s1 ? '📍 Getting There\n' + s1 + '\n\n' : ''}${s2 ? '🏨 Where to Stay\n' + s2 + '\n\n' : ''}${s3 ? '🍽 Where to Eat\n' + s3 + '\n\n' : ''}${s4 ? '🥾 Activities\n' + s4 + '\n\n' : ''}${tips ? '💡 Tips\n' + tips : ''}`;
   } else if (template === 'story') {
-    content = `STORY:\n${document.getElementById('b-story').value.trim()}`;
+    const story = document.getElementById('b-story').value.trim();
+    content = `STORY:\n${story}`;
+    substackBody = story;
   } else {
-    const items = [...document.querySelectorAll('#list-items input')].map((i,idx) => `${idx+1}. ${i.value.trim()}`).filter(i => i.length > 3).join('\n');
-    content = `LIST TITLE: ${document.getElementById('b-list-title').value.trim()}\nINTRO: ${document.getElementById('b-list-intro').value.trim()}\n\nITEMS:\n${items}`;
+    const listTitle = document.getElementById('b-list-title').value.trim();
+    const listIntro = document.getElementById('b-list-intro').value.trim();
+    const items = [...document.querySelectorAll('#list-items input')].map((i,idx) => `${idx+1}. ${i.value.trim()}`).filter(i => i.length > 3);
+    content = `LIST TITLE: ${listTitle}\nINTRO: ${listIntro}\n\nITEMS:\n${items.join('\n')}`;
+    substackBody = `${listIntro}\n\n${items.join('\n')}`;
   }
 
   const quotes = [...document.querySelectorAll('#b-quotes input')].map(i => i.value.trim()).filter(Boolean);
@@ -722,7 +765,8 @@ function generateBlog() {
     return inputs[0]?.value.trim() && inputs[1]?.value.trim() ? `${inputs[0].value.trim()} → ${inputs[1].value.trim()}` : '';
   }).filter(Boolean);
 
-  const output = `NEW BLOG POST FOR A LIFE MOORE LIVED
+  // BLOG OUTPUT (for Claude)
+  const blogOutput = `NEW BLOG POST FOR A LIFE MOORE LIVED
 ${'─'.repeat(45)}
 TEMPLATE: ${template.toUpperCase()}
 TITLE: ${title}
@@ -740,10 +784,41 @@ ${links.length ? '\nLINKS:\n' + links.join('\n') : ''}
 
 Please: 1) correct all spelling/grammar errors, 2) build the formatted blog post HTML file matching the site style, 3) update index.html to add the card to the blog grid with the card thumbnail image.`;
 
-  document.getElementById('b-output-content').textContent = output;
+  // SUBSTACK OUTPUT
+  const substackOutput = `SUBJECT LINE: New on A Life Moore Lived: ${title}
+
+---
+
+Hi friends,
+
+${substackBody}
+
+---
+
+📍 READ THE FULL POST
+
+→ https://alifemoorelived.com
+
+${recipe ? `---
+
+🍴 THIS WEEK\'S RECIPE
+
+${recipe}` : ''}
+
+---
+
+No schedule, no pressure — I share when I have something worth sharing. Thanks for being here.
+
+With love,
+Joanna 🌿
+
+${ps ? `P.S. ${ps}` : 'P.S. [Add a personal note here — this is always the most read line in the email!]'}`;
+
+  document.getElementById('b-output-content').textContent = blogOutput;
+  document.getElementById('b-substack-content').textContent = substackOutput;
   document.getElementById('b-output').style.display = 'block';
   document.getElementById('b-output').scrollIntoView({ behavior: 'smooth' });
-  window._blogOutput = output;
+  window._blogOutput = blogOutput;
 }
 
 // GENERATE RECIPE
